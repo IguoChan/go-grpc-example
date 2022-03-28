@@ -103,3 +103,89 @@ var Simple_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "simple.proto",
 }
+
+// AAClient is the client API for AA service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AAClient interface {
+	Get(ctx context.Context, in *AAReq, opts ...grpc.CallOption) (*AAres, error)
+}
+
+type aAClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAAClient(cc grpc.ClientConnInterface) AAClient {
+	return &aAClient{cc}
+}
+
+func (c *aAClient) Get(ctx context.Context, in *AAReq, opts ...grpc.CallOption) (*AAres, error) {
+	out := new(AAres)
+	err := c.cc.Invoke(ctx, "/proto.AA/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AAServer is the server API for AA service.
+// All implementations must embed UnimplementedAAServer
+// for forward compatibility
+type AAServer interface {
+	Get(context.Context, *AAReq) (*AAres, error)
+	mustEmbedUnimplementedAAServer()
+}
+
+// UnimplementedAAServer must be embedded to have forward compatible implementations.
+type UnimplementedAAServer struct {
+}
+
+func (UnimplementedAAServer) Get(context.Context, *AAReq) (*AAres, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedAAServer) mustEmbedUnimplementedAAServer() {}
+
+// UnsafeAAServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AAServer will
+// result in compilation errors.
+type UnsafeAAServer interface {
+	mustEmbedUnimplementedAAServer()
+}
+
+func RegisterAAServer(s grpc.ServiceRegistrar, srv AAServer) {
+	s.RegisterService(&AA_ServiceDesc, srv)
+}
+
+func _AA_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AAReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AAServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.AA/Get",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AAServer).Get(ctx, req.(*AAReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AA_ServiceDesc is the grpc.ServiceDesc for AA service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AA_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.AA",
+	HandlerType: (*AAServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Get",
+			Handler:    _AA_Get_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "simple.proto",
+}

@@ -11,7 +11,7 @@ import (
 
 const (
 	// Address 连接地址
-	Address1 string = "10.122.104.197:9411"
+	Address1 string = ":9411"
 )
 
 func main() {
